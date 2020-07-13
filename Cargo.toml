@@ -1,0 +1,12 @@
+[package]
+name = "ps"
+version = "0.1.0"
+authors = ["Alexander9673 <59809478+Alexander9673@users.noreply.github.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+protonsdk_variant = "0.1.1"
+bytes = "0.5.5"
+enet = { git = "https://github.com/Alexander9673/enet-rs" }
