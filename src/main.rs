@@ -2,10 +2,10 @@ use protonsdk_variant::*;
 use enet;
 
 // import our gamepacket struct
-#[path = "./structs/gamepacket.rs"]
-mod packet;
+#[path = "./structs/packets.rs"]
+mod packets;
 
-use packet::GamePacket;
+use packets::{GamePacket, IncomingPacket};
 
 fn main() {
     let server: enet::Enet = enet::Enet::new().unwrap();
@@ -22,21 +22,20 @@ fn main() {
         enet::BandwidthLimit::Unlimited,
     enet::BandwidthLimit::Unlimited).unwrap();
 
+    println!("Now checking for Enet Events");
+
     loop {
         match host.service(0).expect("failed at checking for events") {
             Some(enet::Event::Connect(ref mut peer)) => {
                 println!("Peer connected: {:?}", std::time::SystemTime::now());
-                let mut packet: GamePacket = GamePacket::new(10000, -1);
+                let packet: GamePacket = GamePacket::new(0, -1);
 
-                packet.combine(var_fn!("OnConsoleMessage", "This is a test packet that is showed after 10 seconds."))
-                    .send(0, peer);
+                packet.send(0, peer, Some(b"\x01\x00\x00\x00\x00"));
+            },
 
-                packet = GamePacket::new(5000, -1);
-                packet.combine_ref(var_fn!("OnConsoleMessage", "This is a test packet that is showed after 5 seconds but sent after the 10 second packet."));
-
-                println!("{:?}", packet.data_ref());
-
-                packet.send(0, peer);
+            Some(enet::Event::Receive { ref mut sender, channel_id, ref mut packet }) => {
+                let received: IncomingPacket = IncomingPacket::new(packet.data().to_vec(), channel_id);
+                println!("Received packet type: {}", received.p_type());
             },
 
             _ => ()

@@ -1,5 +1,5 @@
 use protonsdk_variant::*;
-use bytes::{BufMut};
+use bytes::{Buf, BufMut};
 
 trait ExtraBytes {
     fn extra(&mut self, amt: usize) -> &Self;
@@ -18,6 +18,7 @@ pub struct GamePacket {
   data: Vec<u8>
 }
 
+#[allow(dead_code)]
 impl GamePacket {
     pub fn new(delay: u32, net_id: i32) -> GamePacket {
         let mut data: Vec<u8> = vec![];
@@ -69,23 +70,67 @@ impl GamePacket {
         &mut self.data
     }
 
-    pub fn send(self, channel: u8, peer: &mut enet::Peer<()>) {
-        peer.send_packet(
-            enet::Packet::new(
-                self.data_ref(),
-                enet::PacketMode::ReliableSequenced
-            ).unwrap(),
-            channel
-        ).unwrap();
-    }
+    pub fn send(self, channel: u8, peer: &mut enet::Peer<()>, data: Option<&[u8]>) {
+        let data_to_send: &[u8] = match data {
+            Some(p) => {
+                std::mem::drop(self.data);
+                p
+            },
+            None => self.data_ref()
+        };
 
-    pub fn send_ref(&self, channel: u8, peer: &mut enet::Peer<()>) {
         peer.send_packet(
             enet::Packet::new(
-                self.data_ref(),
+                data_to_send,
                 enet::PacketMode::ReliableSequenced
             ).unwrap(),
             channel
         ).unwrap();
     }  
+
+    pub fn send_ref(&mut self, channel: u8, peer: &mut enet::Peer<()>, data: Option<&[u8]>) {
+        let data_to_send: &[u8] = match data {
+            Some(p) => {
+                self.data = vec![];
+                p
+            },
+            None => self.data_ref()
+        };
+
+        peer.send_packet(
+            enet::Packet::new(
+                data_to_send,
+                enet::PacketMode::ReliableSequenced
+            ).unwrap(),
+            channel
+        ).unwrap();
+    }  
+}
+
+#[allow(dead_code)]
+pub struct IncomingPacket {
+    received: Vec<u8>,
+    channel: u8
+}
+
+#[allow(dead_code)]
+impl IncomingPacket {
+    pub fn new(received: Vec<u8>, channel: u8) -> IncomingPacket {
+        IncomingPacket {
+            received,
+            channel
+        }
+    }
+
+    pub fn p_type(self) -> u8 {
+        (&*self.received).get_uint_le(4) as u8
+    }
+
+    pub fn p_type_ref(&self) -> u8 {
+        (&*self.received).get_uint_le(4) as u8
+    }
+
+    pub fn p_type_mut_ref(&mut self) -> u8 {
+        (&*self.received).get_uint_le(4) as u8
+    }
 }
