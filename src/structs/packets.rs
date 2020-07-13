@@ -58,16 +58,8 @@ impl GamePacket {
         self.data
     }
 
-    pub fn data_mut(mut self) -> Vec<u8> {
-        self.data
-    }
-
     pub fn data_ref(&self) -> &Vec<u8> {
         &self.data
-    }
-
-    pub fn data_mut_ref(&mut self) -> &mut Vec<u8> {
-        &mut self.data
     }
 
     pub fn send(self, channel: u8, peer: &mut enet::Peer<()>, data: Option<&[u8]>) {
@@ -132,5 +124,19 @@ impl IncomingPacket {
 
     pub fn p_type_mut_ref(&mut self) -> u8 {
         (&*self.received).get_uint_le(4) as u8
+    }
+
+    pub fn get_string_form(mut self) -> String {
+        self.received.drain(0..4);
+        self.received.pop();
+
+        String::from_utf8_lossy(&self.received).to_string()
+    }
+
+    pub fn get_string_form_ref(&mut self) -> String {
+        self.received.drain(0..4);
+        self.received.pop();
+        
+        String::from_utf8_lossy(&self.received).to_string()
     }
 }
