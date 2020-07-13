@@ -5,7 +5,7 @@ pub use enet;
 #[path = "./structs/packets.rs"]
 mod packets;
 
-#[path = "./src/handler.rs"]
+#[path = "./utils/handler.rs"]
 mod handler;
 
 pub use packets::{GamePacket, IncomingPacket};
