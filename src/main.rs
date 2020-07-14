@@ -30,7 +30,7 @@ fn main() {
     loop {
         match host.service(0).expect("failed at checking for events") {
             Some(enet::Event::Connect(ref mut peer)) => {
-                println!("Peer connected: {:?}", std::time::SystemTime::now());
+                println!("Peer connected {:?}", peer);
                 let packet: GamePacket = GamePacket::new(0, -1);
 
                 packet.send(0, peer, Some(b"\x01\x00\x00\x00\x00"));
@@ -58,9 +58,17 @@ fn main() {
 
                         if packet_map.contains_key("requestedName") || packet_map.contains_key("tankIDName") {
                             // just logging in
-                            handler::on_login(peer, None)
-                        }
+                            handler::on_login(peer, Some(packet_map))
+                        } else if packet_map.contains_key("action") {
+                            // an action
+                            println!("{}", packet_map.get("action").unwrap());
+                        } else {};
                     },
+
+                    4 => { // handle tank packets
+                        println!("Received tank packet: {:?}", received.unpack_tank_ref());
+                    },
+
                     _ => ()
                 }
             },

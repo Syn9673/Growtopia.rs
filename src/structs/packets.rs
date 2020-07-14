@@ -1,6 +1,11 @@
 use protonsdk_variant::*;
 use bytes::{Buf, BufMut};
 
+#[path = "./tankpacket.rs"]
+mod tankpacket;
+
+use tankpacket::TankPacket;
+
 trait ExtraBytes {
     fn extra(&mut self, amt: usize) -> &Self;
 }
@@ -114,6 +119,14 @@ impl IncomingPacket {
         }
     }
 
+    pub fn data(self) -> Vec<u8> {
+        self.received
+    }
+
+    pub fn data_ref(&self) -> &Vec<u8> {
+        &self.received
+    }
+
     pub fn p_type(self) -> u8 {
         (&*self.received).get_uint_le(4) as u8
     }
@@ -138,5 +151,17 @@ impl IncomingPacket {
         self.received.pop();
         
         String::from_utf8_lossy(&self.received).to_string()
+    }
+
+    pub fn unpack_tank(self) -> TankPacket {
+        let mut buf: &[u8] = &*self.received;
+ 
+        TankPacket::new(Some(buf.get_u32_le() as u8), Some(buf.get_u32_le() as u8), Some(buf.get_i16_le()))
+    }
+
+    pub fn unpack_tank_ref(&self) -> TankPacket {
+        let mut buf: &[u8] = &*self.received;
+ 
+        TankPacket::new(Some(buf.get_u32_le() as u8), Some(buf.get_u32_le() as u8), Some(buf.get_i16_le()))
     }
 }
