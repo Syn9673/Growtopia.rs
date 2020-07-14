@@ -42,9 +42,9 @@ fn main() {
         match host.service(0).expect("failed at checking for events") {
             Some(enet::Event::Connect(ref mut peer)) => {
                 println!("Peer connected {:?}", peer);
-                let packet: GamePacket = GamePacket::new(0, -1);
+                let packet: GamePacket = GamePacket::from(vec![1, 0, 0, 0, 0]);
 
-                packet.send(0, peer, Some(b"\x01\x00\x00\x00\x00"));
+                packet.send(0, peer, None);
             },
 
             Some(enet::Event::Receive { sender: ref mut peer, channel_id, ref mut packet }) => {
