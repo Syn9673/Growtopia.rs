@@ -10,3 +10,14 @@ edition = "2018"
 protonsdk_variant = "0.1.1"
 bytes = "0.5.5"
 enet = { git = "https://github.com/Alexander9673/enet-rs" }
+
+[profile.dev]
+opt-level = 3
+debug = false
+debug-assertions = false
+overflow-checks = false
+lto = false
+panic = 'unwind'
+incremental = false
+codegen-units = 16
+rpath = false

@@ -8,9 +8,19 @@ mod packets;
 #[path = "./utils/handler.rs"]
 mod handler;
 
-pub use packets::{GamePacket, IncomingPacket};
+#[path = "./utils/items_dat.rs"]
+mod items_dat;
+
+use packets::{GamePacket, IncomingPacket};
+use handler::Handler;
+use items_dat::ItemsDat;
 
 fn main() {
+    let mut items_dat: ItemsDat = ItemsDat::new();
+    items_dat.hash_ref(); // calculate the hash, uses a reference of "self" to be able to use the "items_dat" variable again
+
+    println!("Got hash from items.dat: {}", items_dat.get_hash_ref());
+
     let server: enet::Enet = enet::Enet::new().unwrap();
     println!("ENet Server Created");
 
@@ -38,6 +48,7 @@ fn main() {
 
             Some(enet::Event::Receive { sender: ref mut peer, channel_id, ref mut packet }) => {
                 let mut received: IncomingPacket = IncomingPacket::new(packet.data().to_vec(), channel_id);
+                let handler: Handler = Handler::new(Some(items_dat.get_hash_ref()));
 
                 // convert the text packets to strings
                 match received.p_type_ref() {
@@ -58,10 +69,10 @@ fn main() {
 
                         if packet_map.contains_key("requestedName") || packet_map.contains_key("tankIDName") {
                             // just logging in
-                            handler::on_login(peer, Some(packet_map))
+                            handler.on_login(peer, Some(packet_map))
                         } else if packet_map.contains_key("action") {
                             // an action
-                            println!("{}", packet_map.get("action").unwrap());
+                            println!("action|{}", packet_map.get("action").unwrap());
                         } else {};
                     },
 
