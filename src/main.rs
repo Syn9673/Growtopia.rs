@@ -18,6 +18,7 @@ use items_dat::ItemsDat;
 fn main() {
     let mut items_dat: ItemsDat = ItemsDat::new();
     items_dat.hash_ref(); // calculate the hash, uses a reference of "self" to be able to use the "items_dat" variable again
+    items_dat.create_ref(); // create items_dat packet
 
     println!("Got hash from items.dat: {}", items_dat.get_hash_ref());
 
@@ -48,7 +49,10 @@ fn main() {
 
             Some(enet::Event::Receive { sender: ref mut peer, channel_id, ref mut packet }) => {
                 let mut received: IncomingPacket = IncomingPacket::new(packet.data().to_vec(), channel_id);
-                let handler: Handler = Handler::new(Some(items_dat.get_hash_ref()));
+                let handler: Handler = Handler::new(
+                    Some(items_dat.get_hash_ref()),
+                    Some(items_dat.get_items_dat_packet_ref().to_vec())
+                );
 
                 // convert the text packets to strings
                 match received.p_type_ref() {
@@ -72,7 +76,13 @@ fn main() {
                             handler.on_login(peer, Some(packet_map))
                         } else if packet_map.contains_key("action") {
                             // an action
-                            println!("action|{}", packet_map.get("action").unwrap());
+                            let action: &str = packet_map.get("action").unwrap().as_str();
+
+                            match action {
+                                "refresh_item_data" => handler.on_request_items_dat(peer, None),
+                                "enter_game" => handler.on_enter_game(peer, None),
+                                _ => println!("Unhandled action: {}", action)
+                            };
                         } else {};
                     },
 

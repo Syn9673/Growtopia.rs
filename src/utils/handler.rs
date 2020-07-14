@@ -3,7 +3,8 @@ use std::collections::HashMap;
 
 #[derive(Debug)]
 pub struct Handler {
-    hash: Option<u32>
+    hash: Option<u32>,
+    items_dat: Option<Vec<u8>>
 }
 
 impl Handler {
@@ -18,15 +19,30 @@ impl Handler {
             "OnSuperMainStartAcceptLogonHrdxs47254722215a",
             hash,
             "ubistatic-a.akamaihd.net",
-            "0098/CDNContent74/cache",
+            "0098/CDNContent74/cache/",
             "cc.cz.madkite.freedom org.aqua.gg idv.aqua.bulldog com.cih.gamecih2 com.cih.gamecih com.cih.game_cih cn.maocai.gamekiller com.gmd.speedtime org.dax.attack com.x0.strai.frep com.x0.strai.free org.cheatengine.cegui org.sbtools.gamehack com.skgames.traffikrider org.sbtoods.gamehaca com.skype.ralder org.cheatengine.cegui.xx.multi1458919170111 com.prohiro.macro me.autotouch.autotouch com.cygery.repetitouch.free com.cygery.repetitouch.pro com.proziro.zacro com.slash.gamebuster",
             "proto=84|choosemusic=audio/mp3/about_theme.mp3|active_holiday=0|server_tick=226933875|clash_active=0|drop_lavacheck_faster=1|isPayingUser=0|"
         )).send(0, peer, None);
     }
 
-    pub fn new(hash: Option<u32>) -> Handler {
+    pub fn on_request_items_dat(self, peer: &mut enet::Peer<()>, _: Option<HashMap<String, String>>) {
+        let packet: crate::GamePacket = crate::GamePacket::from(self.items_dat.unwrap());
+        packet.send(0, peer, None);
+    }
+
+    pub fn on_enter_game(self, peer: &mut enet::Peer<()>, _: Option<HashMap<String, String>>) {
+        let packet: crate::GamePacket = crate::GamePacket::new(0, -1);
+        
+        packet.combine(var_fn!(
+            "OnRequestWorldSelectMenu",
+            "default|\nadd_button|Showing: `wWorlds``|_catselect_|0.6|3529161471|\n"
+        )).send(0, peer, None);
+    }
+
+    pub fn new(hash: Option<u32>, items_dat: Option<Vec<u8>>) -> Handler {
         Handler {
-            hash
+            hash,
+            items_dat
         }
     }
 }

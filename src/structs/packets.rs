@@ -4,20 +4,11 @@ use bytes::{Buf, BufMut};
 #[path = "./tankpacket.rs"]
 mod tankpacket;
 
+#[path = "./extra_bytes.rs"]
+mod extra_bytes;
+
 use tankpacket::TankPacket;
-
-trait ExtraBytes {
-    fn extra(&mut self, amt: usize) -> &Self;
-}
-
-impl ExtraBytes for Vec<u8> {
-    fn extra(&mut self, amt: usize) -> &Self {
-        let bytes: &[u8] = &b"\x00".repeat(amt);
-        self.put(bytes);
-
-        self
-    }
-}
+use extra_bytes::ExtraBytes;
 
 pub struct GamePacket {
   data: Vec<u8>
@@ -40,6 +31,12 @@ impl GamePacket {
 
         GamePacket {
             data
+        }
+    }
+
+    pub fn from(packet: Vec<u8>) -> GamePacket {
+        GamePacket {
+            data: packet
         }
     }
 
