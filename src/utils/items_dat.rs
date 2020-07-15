@@ -68,11 +68,9 @@ impl ItemsDat {
 
     pub fn hash(mut self) {
         let mut h: u32 = 0x55555555;
-        let mut index: usize = 0;
 
-        while index < self.items_dat_file.len() {
-            h = (h >> 27) + (h << 5) + self.items_dat_file[index] as u32;
-            index += 1;
+        for i in self.items_dat_file.iter() {
+            h = (h >> 27) + (h << 5) + (*i) as u32;
         };
 
         self.items_dat_hash = h;
@@ -80,11 +78,9 @@ impl ItemsDat {
 
     pub fn hash_ref(&mut self) {
         let mut h: u32 = 0x55555555;
-        let mut index: usize = 0;
 
-        while index < self.items_dat_file.len() {
-            h = (h >> 27) + (h << 5) + self.items_dat_file[index] as u32;
-            index += 1;
+        for i in self.items_dat_file.iter() {
+            h = (h >> 27) + (h << 5) + (*i) as u32;
         };
 
         self.items_dat_hash = h;

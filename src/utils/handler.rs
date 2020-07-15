@@ -1,6 +1,11 @@
 use protonsdk_variant::*;
 use std::collections::HashMap;
 
+#[path = "./world.rs"]
+mod world;
+
+use world::World;
+
 #[derive(Debug)]
 pub struct Handler {
     hash: Option<u32>,
@@ -37,6 +42,22 @@ impl Handler {
             "OnRequestWorldSelectMenu",
             "default|\nadd_button|Showing: `wWorlds``|_catselect_|0.6|3529161471|\n"
         )).send(0, peer, None);
+    }
+
+    pub fn on_join_request(self, peer: &mut enet::Peer<()>, received: Option<HashMap<String, String>>) {
+        let data: HashMap<String, String> = received.unwrap(); // just overwrite it
+        
+        let world: World = World::new(data.get("name").unwrap().as_str(), 100, 60);
+        let world_packet: Vec<u8> = world.packet(); // create the packet
+        let mut packet: crate::GamePacket = crate::GamePacket::from(world_packet);
+
+        packet.send(0, peer, None); // send world packet
+
+        packet = crate::GamePacket::new(0, -1); // recreate packet
+        packet.combine(var_fn!(
+            "OnSpawn",
+            "spawn|avatar\nnetID|1\nuserID|1\ncolrect|0|0|20|30\nposXY|3040|700\nname|`#Test``\ncountry|ph\ninvis|0\nmstate|0\nsmstate|0\ntype|local\n"
+        )).send(0, peer, None); // send OnSpawn packet
     }
 
     pub fn new(hash: Option<u32>, items_dat: Option<Vec<u8>>) -> Handler {

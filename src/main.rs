@@ -60,7 +60,8 @@ fn main() {
                         let mut packet_map: HashMap<String, String> = HashMap::new();
 
                         for i in received.get_string_form_ref().split("\n") {
-                            let kv: Vec<&str> = i.split("|").collect();
+                            let mut kv: Vec<&str> = i.split("|").collect();
+                            kv.retain(|&e| e.len() > 0); // remove empty strings
 
                             if kv.len() < 2 {
                                 // no key value
@@ -81,7 +82,8 @@ fn main() {
                             match action {
                                 "refresh_item_data" => handler.on_request_items_dat(peer, None),
                                 "enter_game" => handler.on_enter_game(peer, None),
-                                _ => println!("Unhandled action: {}", action)
+                                "join_request" => handler.on_join_request(peer, Some(packet_map)),
+                                _ => println!("Unhandled action: {}\nData: {:?}", action, packet_map)
                             };
                         } else {};
                     },
