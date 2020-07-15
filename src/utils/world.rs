@@ -21,7 +21,6 @@ impl World {
         let y: u16 = self.height;
         let square: u16 = x * y;
 
-        let alloc_amount: usize = 78 + self.name.len() + square as usize + 24 + (8 * square as usize);
         data.put_u32_le(4);
         data.put_u32_le(4);
         data.extra(8);
@@ -35,7 +34,22 @@ impl World {
         data.put_uint_le(y as u64, 1);
         data.extra(3);
         data.put_uint_le(square as u64, 2);
-        data.extra(alloc_amount - data.len());
+        data.extra(2);
+
+        let mut index: usize = 0;
+
+        while index < square as usize {
+            if index >= 3000 {
+                data.put_uint_le(2, 2);
+                data.put_uint_le(14, 2);
+            } else {
+                data.extra(4);
+            }
+
+            data.put_uint_le(0x00000000, 4);
+
+            index += 1;
+        }
         
         data
     }
@@ -46,7 +60,6 @@ impl World {
         let y: u16 = self.height;
         let square: u16 = x * y;
 
-        let alloc_amount: usize = 78 + self.name.len() + square as usize + 24 + (8 * square as usize);
         data.put_u32_le(4);
         data.put_u32_le(4);
         data.extra(8);
@@ -60,7 +73,22 @@ impl World {
         data.put_uint_le(y as u64, 1);
         data.extra(3);
         data.put_uint_le(square as u64, 2);
-        data.extra(alloc_amount - data.len());
+        data.extra(2);
+
+        let mut index: usize = 0;
+
+        while index < square as usize {
+            if index >= 3000 {
+                data.put_uint_le(2, 2);
+                data.put_uint_le(14, 2);
+            } else {
+                data.extra(4);
+            }
+
+            data.put_uint_le(0x00000000, 4);
+
+            index += 1;
+        }
         
         data
     }

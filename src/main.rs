@@ -11,6 +11,9 @@ mod handler;
 #[path = "./utils/items_dat.rs"]
 mod items_dat;
 
+#[path = "./utils/actions.rs"]
+mod actions;
+
 use packets::{GamePacket, IncomingPacket};
 use handler::Handler;
 use items_dat::ItemsDat;
@@ -78,13 +81,7 @@ fn main() {
                         } else if packet_map.contains_key("action") {
                             // an action
                             let action: &str = packet_map.get("action").unwrap().as_str();
-
-                            match action {
-                                "refresh_item_data" => handler.on_request_items_dat(peer, None),
-                                "enter_game" => handler.on_enter_game(peer, None),
-                                "join_request" => handler.on_join_request(peer, Some(packet_map)),
-                                _ => println!("Unhandled action: {}\nData: {:?}", action, packet_map)
-                            };
+                            actions::call(action, handler, peer, packet_map.clone());
                         } else {};
                     },
 

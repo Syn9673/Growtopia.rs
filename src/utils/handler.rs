@@ -56,7 +56,7 @@ impl Handler {
         packet = crate::GamePacket::new(0, -1); // recreate packet
         packet.combine(var_fn!(
             "OnSpawn",
-            "spawn|avatar\nnetID|1\nuserID|1\ncolrect|0|0|20|30\nposXY|3040|700\nname|`#Test``\ncountry|ph\ninvis|0\nmstate|0\nsmstate|0\ntype|local\n"
+            "spawn|avatar\nnetID|1\nuserID|1\ncolrect|0|0|20|30\nposXY|3040|700\nname|`#Test``\ncountry|us\ninvis|0\nmstate|0\nsmstate|0\ntype|local\n"
         )).send(0, peer, None); // send OnSpawn packet
     }
 
